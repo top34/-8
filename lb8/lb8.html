@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список користувачів</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 { color: #333; }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th { background-color: #007bff; color: white; }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn:hover { background-color: #0056b3; }
+        .form-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 300px;
+            margin-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+        .form-container input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+    <h2>📋 Список користувачів</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Ім'я</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody id="usersTable">
+            <!-- Дані будуть завантажені сюди -->
+        </tbody>
+    </table>
+
+    <button class="btn" id="refreshBtn">🔄 Оновити</button>
+
+    <div class="form-container">
+        <h3>➕ Додати нового користувача</h3>
+        <form id="addUserForm">
+            <input type="text" id="nameInput" placeholder="Введіть ім'я" required>
+            <input type="email" id="emailInput" placeholder="Введіть email" required>
+            <button type="submit" class="btn btn-success">Додати користувача</button>
+        </form>
+    </div>
+
+    <script>
+        // Функція для отримання даних з API
+        function fetchUsers() {
+            fetch("https://jsonplaceholder.typicode.com/users")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Помилка при отриманні даних");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let tableBody = document.getElementById("usersTable");
+                    tableBody.innerHTML = ""; // Очищення таблиці перед оновленням
+                    
+                    data.forEach(user => {
+                        let row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${user.id}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Помилка:", error));
+        }
+
+        // Завантаження даних при відкритті сторінки
+        fetchUsers();
+
+        // Обробник для кнопки "Оновити"
+        document.getElementById("refreshBtn").addEventListener("click", fetchUsers);
+
+        // Обробник для форми додавання нового запису
+        document.getElementById("addUserForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById("nameInput").value;
+            let email = document.getElementById("emailInput").value;
+            let tableBody = document.getElementById("usersTable");
+            
+            // Генерація умовного ID (останній рядок + 1)
+            let newId = tableBody.rows.length + 1;
+
+            let row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${newId}</td>
+                <td>${name}</td>
+                <td>${email}</td>
+            `;
+            tableBody.appendChild(row);
+
+            // Очищення форми
+            document.getElementById("addUserForm").reset();
+        });
+    </script>
+</body>
+</html>
